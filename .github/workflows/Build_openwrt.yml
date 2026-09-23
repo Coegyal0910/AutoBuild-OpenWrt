@@ -57,29 +57,25 @@ jobs:
         REPO_URL: https://github.com/Coegyal0910/openwrt
         REPO_BRANCH: v25.12.5
       run: |
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
-        cd openwrt
+        git clone --depth 1 $REPO_URL -b$REPO_BRANCH openwrt
+
+    - name: Update & Install feeds
+      working-directory: ./openwrt
+      run: |
+        # 替换官方 luci 为你自己的 luci 仓库及对应分支
+        sed -i 's|src-git-full luci.*|src-git luci https://github.com/Coegyal0910/luci.git;openwrt-25.12|g' feeds.conf.default
+        
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        ./scripts/feeds install -a
 
     - name: Configuration Customization
       env:
         CONFIG_FILE: '.config'
       run: |
-        # 先把根目录的配置文件移动到 openwrt 内部（如果存在的话）
+        # 【修改点】在 feeds 安装完成后，再将根目录的 .config 移动到 openwrt 内部
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/$CONFIG_FILE
-        # 进入 openwrt 目录执行脚本
-        #cd openwrt
-        #chmod +x ../customize.sh && ../customize.sh
-       
-    - name: Update & Install feeds
-      working-directory: ./openwrt
-      run: |
-        # 替换官方 luci 为你自己的 luci 仓库及对应分支
-        sed -i 's|src-git-full luci.*|src-git luci https://github.com/Jewell1024/luci.git;openwrt-25.12|g' feeds.conf.default      
-       
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-        ./scripts/feeds install -a
-
+        
     - name: Make Defconfig
       working-directory: ./openwrt
       run: |
@@ -106,8 +102,8 @@ jobs:
       uses: softprops/action-gh-release@master
       with:
         files: openwrt/bin/targets/*/*/*
-        name: OpenWrt 25.12 ${{ env.BUILD_DATE }}
-        tag_name: v${{ env.BUILD_DATE }}
+        name: OpenWrt 25.12.5 ${{ env.BUILD_DATE }}
+        tag_name: 25.12.5-v${{ env.BUILD_DATE }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
