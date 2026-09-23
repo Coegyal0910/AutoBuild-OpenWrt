@@ -55,9 +55,9 @@ jobs:
     - name: Clone source code
       env: 
         REPO_URL: https://github.com/Coegyal0910/openwrt
-        REPO_BRANCH: openwrt-25.12
+        REPO_BRANCH: v25.12.5
       run: |
-        git clone --depth 1 $REPO_URL -b$REPO_BRANCH openwrt
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
 
     - name: Configuration Customization
@@ -67,12 +67,15 @@ jobs:
         # 先把根目录的配置文件移动到 openwrt 内部（如果存在的话）
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/$CONFIG_FILE
         # 进入 openwrt 目录执行脚本
-        cd openwrt
-        chmod +x ../customize.sh && ../customize.sh
+        #cd openwrt
+        #chmod +x ../customize.sh && ../customize.sh
        
     - name: Update & Install feeds
       working-directory: ./openwrt
       run: |
+        # 替换官方 luci 为你自己的 luci 仓库及对应分支
+        sed -i 's|src-git-full luci.*|src-git luci https://github.com/Jewell1024/luci.git;openwrt-25.12|g' feeds.conf.default      
+       
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
