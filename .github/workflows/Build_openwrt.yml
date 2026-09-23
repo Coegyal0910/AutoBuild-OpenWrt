@@ -57,7 +57,7 @@ jobs:
         REPO_URL: https://github.com/Coegyal0910/openwrt
         REPO_BRANCH: v25.12.5
       run: |
-        git clone --depth 1 $REPO_URL -b$REPO_BRANCH openwrt
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
 
     - name: Update & Install feeds
       working-directory: ./openwrt
